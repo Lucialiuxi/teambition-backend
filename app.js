@@ -11,7 +11,7 @@ const cors = require('cors');
 
 app.use(cors({
     credentials:true,
-    origin:'http://localhost:8081',
+    origin:'*',
     optionsSuccessStatus: 200  // 响应option请求为200，目的就是节约时间，告诉前端可以正常发请求
 }));
 
