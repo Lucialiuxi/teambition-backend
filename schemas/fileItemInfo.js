@@ -10,5 +10,6 @@ module.exports = new Schema({
     FileName:  String,
     FileAbstract: String,
     fileId: Number,
-    star: Boolean
+    star: Boolean,
+    inRecycleBin: Boolean
   });

@@ -36,7 +36,7 @@ router.post('/usersRegister',function(req,res,next){
     User.findOne({
         username:un
     },function(err,adventure){
-        console.log('exec',err,adventure)
+        // console.log('exec',err,adventure)
         if(err){//错误
             // console.log('err',err)
             return;
@@ -73,12 +73,12 @@ router.post('/usersRegister',function(req,res,next){
 router.post('/userLogin',function(req,res,next){
     let un = req.body.username;
     let pw = req.body.password;
-    console.log(un,pw)
+    // console.log(un,pw)
     console.log('登录')
     User.findOne({
         username:un
     },function(err,adventure){
-        console.log(err,adventure)
+        // console.log(err,adventure)
         if(err){
             return;
         }
@@ -118,21 +118,24 @@ router.post('/userLogin',function(req,res,next){
 
 //新建文件夹
 router.post('/createFile',function(req,res,next){
-    console.log(req.body)
+    // console.log(req.body)
+    console.log("新建文件夹")
     let userLoginName = req.body.userLoginName;
     let FileName = req.body.FileName;
     let FileAbstract = req.body.FileAbstract;
     let star = req.body.star;
     let fileId = req.body.fileId;
+    let inRecycleBin = req.body.inRecycleBin;
     if(FileName){
         FileInfo.create({
             userLoginName:userLoginName,
             FileName:  FileName,
             FileAbstract: FileAbstract,
             fileId: fileId,
-            star: star 
+            star: star,
+            inRecycleBin: inRecycleBin
         },function(err,data){
-            console.log(err,data)
+            // console.log(err,data)
             if(err){//错误
                 console.log('err',err)
                 return;
@@ -152,14 +155,15 @@ router.post('/createFile',function(req,res,next){
 
 //进入或者刷新大图标文件区的时候，请求文件数据
 router.post('/AllFilesInfo',function(req,res,next){
-    console.log(req.body)
+    // console.log(req.body)
+    console.log("刷新")
     //前端发送过来的用户名存在，就查找用户名对应的数据
     let userName = req.body.userLoginName;
     if(userName){
         FileInfo.find({
             userLoginName:userName
         },function(err,data){
-            console.log(err,data)
+            // console.log(err,data)
             if(err){//错误
                 console.log('err',err)
                 return;
@@ -176,9 +180,10 @@ router.post('/AllFilesInfo',function(req,res,next){
     
 })
 
-//修改大图标文件的信息 {fileId:XXX}
+//修改大图标文件的信息 
 router.post('/ModifyFileInfo',function(req,res,next){
-    console.log('ModifyFileInfo',req.body)
+    // console.log('ModifyFileInfo',req.body)
+    console.log('修改大图标文件')
     let fileId = req.body.fileId;
     let userLoginName = req.body.userLoginName;
     if(fileId){
@@ -189,7 +194,7 @@ router.post('/ModifyFileInfo',function(req,res,next){
             FileName:req.body.FileName,
             FileAbstract:req.body.FileAbstract
         },function(err,data){
-            console.log('findOneAndUpdate',err,data)
+            // console.log('findOneAndUpdate',err,data)
             if(err){
                console.log('err',err) 
             }
@@ -203,6 +208,62 @@ router.post('/ModifyFileInfo',function(req,res,next){
             }
         })
 
+    }
+})
+
+//切换标星
+router.post('/ToggleFileStar',function(req,res,next){
+    console.log(req.body,'切换标星');
+    let fileId = req.body.fileId;
+    let userLoginName = req.body.userLoginName;
+    if(fileId){
+        FileInfo.findOneAndUpdate({
+            fileId: fileId,
+            userLoginName: userLoginName,
+        },{
+            star:req.body.star
+        },function(err,data){
+            console.log('findOneAndUpdate',err,data)
+            if(err){
+               console.log('err',err) 
+            }
+            if(data.fileId){
+                res.json({
+                    success:true,
+                    code:5,
+                    message:`切换标星成功${req.body.star}`,
+                    afterModifyData:req.body
+                })
+            }
+        })
+    }
+})
+
+//移动文件到回收站
+router.post('/MoveFileToRecycleBin',function(req,res,next){
+    console.log(req.body,'移动文件到回收站');
+    let fileId = req.body.fileId;
+    let userLoginName = req.body.userLoginName;
+    if(fileId){
+        FileInfo.findOneAndUpdate({
+            fileId: fileId,
+            userLoginName: userLoginName,
+        },{
+            inRecycleBin:req.body.inRecycleBin
+        },function(err,data){
+            console.log('findOneAndUpdate',err,data)
+            if(err){
+               console.log('err',err) 
+            }
+            if(data.fileId){
+                res.json({
+                    success:true,
+                    code:5,
+                    message:'移动文件到回收站成功',
+                    afterModifyData:req.body
+                })
+            }
+        })
     }
 })
 module.exports = router;
