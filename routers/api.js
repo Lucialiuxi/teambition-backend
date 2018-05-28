@@ -213,7 +213,8 @@ router.post('/ModifyFileInfo',function(req,res,next){
 
 //切换标星
 router.post('/ToggleFileStar',function(req,res,next){
-    console.log(req.body,'切换标星');
+    // console.log(req.body);
+    console.log('切换标星')
     let fileId = req.body.fileId;
     let userLoginName = req.body.userLoginName;
     if(fileId){
@@ -223,7 +224,7 @@ router.post('/ToggleFileStar',function(req,res,next){
         },{
             star:req.body.star
         },function(err,data){
-            console.log('findOneAndUpdate',err,data)
+            // console.log('findOneAndUpdate',err,data)
             if(err){
                console.log('err',err) 
             }
@@ -241,7 +242,7 @@ router.post('/ToggleFileStar',function(req,res,next){
 
 //移动文件到回收站
 router.post('/MoveFileToRecycleBin',function(req,res,next){
-    console.log(req.body,'移动文件到回收站');
+    console.log('移动文件到回收站');
     let fileId = req.body.fileId;
     let userLoginName = req.body.userLoginName;
     if(fileId){
@@ -251,7 +252,7 @@ router.post('/MoveFileToRecycleBin',function(req,res,next){
         },{
             inRecycleBin:req.body.inRecycleBin
         },function(err,data){
-            console.log('findOneAndUpdate',err,data)
+            // console.log('findOneAndUpdate',err,data)
             if(err){
                console.log('err',err) 
             }
@@ -261,6 +262,33 @@ router.post('/MoveFileToRecycleBin',function(req,res,next){
                     code:5,
                     message:'移动文件到回收站成功',
                     afterModifyData:req.body
+                })
+            }
+        })
+    }
+})
+
+
+router.post('/deleteAFlie',function(req,res,next){
+    console.log(req.body,'删除回收站的文件夹');
+    let fileId = req.body.fileId;
+    let userLoginName = req.body.userLoginName;
+    if(fileId){
+        FileInfo.findOneAndDelete({
+            fileId: fileId,
+            userLoginName: userLoginName,
+            inRecycleBin: true
+        },function(err,data){
+            console.log('findOneAndDelete',err,data)
+            if(err){
+               console.log('err',err) 
+            }
+            if(data.fileId){
+                res.json({
+                    success:true,
+                    code:5,
+                    message:`文件删除成功`,
+                    deletedFileInfo:data
                 })
             }
         })
