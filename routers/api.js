@@ -1,6 +1,9 @@
 //注册的用户信息
 let User = require('../models/userModel');
+//项目文件信息
 let FileInfo = require('../models/fileItemInfoModel');
+//任务列表信息
+let TaskItem = require('../models/taskItemModel');
 let express = require('express');
 var router = express.Router();
 
@@ -68,7 +71,6 @@ router.post('/usersRegister',function(req,res,next){
     })
 })
 
-
 //登录
 router.post('/userLogin',function(req,res,next){
     let un = req.body.username;
@@ -78,7 +80,7 @@ router.post('/userLogin',function(req,res,next){
     User.findOne({
         username:un
     },function(err,adventure){
-        // console.log(err,adventure)
+        console.log(err,adventure)
         if(err){
             return;
         }
@@ -166,7 +168,7 @@ router.post('/AllFilesInfo',function(req,res,next){
             // console.log(err,data)
             if(err){//错误
                 console.log('err',err)
-                return;
+                throw new Error(err)
             }else{
                 res.json({
                     success:true,
@@ -268,9 +270,9 @@ router.post('/MoveFileToRecycleBin',function(req,res,next){
     }
 })
 
-
-router.post('/deleteAFlie',function(req,res,next){
-    console.log(req.body,'删除回收站的文件夹');
+//删除一个项目文件夹
+router.post('/DeleteAFlie',function(req,res,next){
+    console.log('删除回收站的文件夹');
     let fileId = req.body.fileId;
     let userLoginName = req.body.userLoginName;
     if(fileId){
@@ -279,7 +281,6 @@ router.post('/deleteAFlie',function(req,res,next){
             userLoginName: userLoginName,
             inRecycleBin: true
         },function(err,data){
-            console.log('findOneAndDelete',err,data)
             if(err){
                console.log('err',err) 
             }
@@ -289,6 +290,55 @@ router.post('/deleteAFlie',function(req,res,next){
                     code:5,
                     message:`文件删除成功`,
                     deletedFileInfo:data
+                })
+            }
+        })
+    }
+})
+
+
+// 新建任务列表
+router.post('/CreateTaskItem',function(req,res,next){
+    let fileId = req.body.param.fileId;
+    let loginName = req.body.param.loginName;
+    console.log(fileId,loginName)
+    let defaultTaskItem = req.body.arr;
+    if(fileId){
+        TaskItem.find({
+            loginName:loginName,
+            fileId:fileId
+        },function(err,adventure){
+            console.log(err,'adventure',adventure,adventure[0])
+            if(err){
+                console.log('err',err)
+                return;
+            }
+            if(adventure[0]){
+                console.log('存在')
+                TaskItem.find({
+                    fileId:fileId
+                },function(Error,d){
+                    console.log(Error,d)
+                    res.json({
+                        success:true,
+                        code:3,
+                        message:'查找任务列表信息',
+                        CurrentTaskItemInfo:adventure
+                    })
+                })
+            }else{
+                console.log('创建',adventure)
+                TaskItem.create(defaultTaskItem[0],defaultTaskItem[1],defaultTaskItem[2],function(error,d){
+                    console.log(error,d)
+                    if(error){
+                        console.log('error',error)
+                    }
+                    res.json({
+                        success:true,
+                        code:33,
+                        message:'创建默认的任务列表',
+                        CurrentTaskItemInfo:d
+                    })
                 })
             }
         })
