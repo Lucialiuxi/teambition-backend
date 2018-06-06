@@ -300,12 +300,12 @@ router.post('/DeleteAFlie',function(req,res,next){
 // 新建任务列表
 router.post('/CreateTaskItem',function(req,res,next){
     let fileId = req.body.param.fileId;
-    let loginName = req.body.param.loginName;
-    console.log(fileId,loginName)
+    let userLoginName = req.body.param.userLoginName;
     let defaultTaskItem = req.body.arr;
+    console.log(defaultTaskItem[0])
     if(fileId){
         TaskItem.find({
-            loginName:loginName,
+            userLoginName:userLoginName,
             fileId:fileId
         },function(err,adventure){
             console.log(err,'adventure',adventure,adventure[0])
@@ -313,20 +313,7 @@ router.post('/CreateTaskItem',function(req,res,next){
                 console.log('err',err)
                 return;
             }
-            if(adventure[0]){
-                console.log('存在')
-                TaskItem.find({
-                    fileId:fileId
-                },function(Error,d){
-                    console.log(Error,d)
-                    res.json({
-                        success:true,
-                        code:3,
-                        message:'查找任务列表信息',
-                        CurrentTaskItemInfo:adventure
-                    })
-                })
-            }else{
+            if(!adventure[0]){
                 console.log('创建',adventure)
                 TaskItem.create(defaultTaskItem[0],defaultTaskItem[1],defaultTaskItem[2],function(error,d){
                     console.log(error,d)
@@ -337,8 +324,31 @@ router.post('/CreateTaskItem',function(req,res,next){
                         success:true,
                         code:33,
                         message:'创建默认的任务列表',
-                        CurrentTaskItemInfo:d
+                        CurrentTaskItemInfo:defaultTaskItem
                     })
+                })
+            }
+        })
+    }
+})
+
+//查询一个项目文件下的任务列表 和任务列表下 子任务
+router.post('/GetTaskItemAndSubTask',function(req,res,next){
+    console.log('查询一个项目文件下的任务列表')
+    let fileId = req.body.fileId;
+    if(fileId){
+        TaskItem.find({
+            fileId:fileId
+        },function(err,data){
+            console.log(err,data)
+            if(err){
+                console.log('err',err)
+            }else if(data[0]){
+                res.json({
+                    success:true,
+                    code:33,
+                    message:`查询fileId--${fileId}对应的任务列表`,
+                    CurrentTaskItemInfo:data
                 })
             }
         })
