@@ -53,7 +53,7 @@ router.post('/usersRegister',function(req,res,next){
                 username:un,
                 password:pw
             },function (err,data) {
-                console.log(data)
+                // console.log(data)
                 if(err){
                     return;
                 }
@@ -77,7 +77,7 @@ router.post('/userLogin',function(req,res,next){
     User.findOne({
         username:un
     },function(err,adventure){
-        console.log(err,adventure)
+        // console.log(err,adventure)
         if(err){
             return;
         }
@@ -92,7 +92,7 @@ router.post('/userLogin',function(req,res,next){
                 username:un,
                 password:pw
             },function(error,data){
-                console.log(error,data)
+                // console.log(error,data)
                 if(error){
                     return;
                 }
