@@ -1,6 +1,6 @@
 let mongoose = require('mongoose')
 
-var url = 'mongodb://localhost:27017/blog';
+var url = 'mongodb://localhost:27017/local';
 
 //连接数据库
 mongoose.connect(url,function(err){

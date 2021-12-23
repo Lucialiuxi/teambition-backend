@@ -1,9 +1,5 @@
-//注册的用户信息
-let User = require('../models/userModel');
 //项目文件信息
 let FileInfo = require('../models/fileItemInfoModel');
-//任务列表信息
-let TaskItem = require('../models/taskItemModel');
 let express = require('express');
 var router = express.Router();
 
@@ -29,94 +25,6 @@ router.use(bodyParser.json())
  *          3 刷新获取数据成功
  *      
  */
-//注册
-router.post('/usersRegister',function(req,res,next){
-    let un = req.body.username;
-    let pw = req.body.password;
-    let state = true;//判断是否可以注册
-    console.log('注册')
-    //先验证用户名是否存在
-    User.findOne({
-        username:un
-    },function(err,adventure){
-        // console.log('exec',err,adventure)
-        if(err){//错误
-            // console.log('err',err)
-            return;
-        }
-        //返回给前端
-        if(adventure){
-            res.json({
-                success:false,
-                code:0,
-                message:'用户名已存在'
-            })
-        }else{
-            User.create({
-                username:un,
-                password:pw
-            },function (err,data) {
-                console.log(data)
-                if(err){
-                    return;
-                }
-                res.json({
-                    success:true,
-                    code:1,
-                    message:'注册成功',
-                    userInfo:data
-                })
-            });
-        }
-    })
-})
-
-//登录
-router.post('/userLogin',function(req,res,next){
-    let un = req.body.username;
-    let pw = req.body.password;
-    // console.log(un,pw)
-    console.log('登录')
-    User.findOne({
-        username:un
-    },function(err,adventure){
-        console.log(err,adventure)
-        if(err){
-            return;
-        }
-        if(!adventure){
-            res.json({
-                success:false,
-                code:404,
-                message:'用户名不存在'
-            })
-        }else{
-            User.findOne({
-                username:un,
-                password:pw
-            },function(error,data){
-                console.log(error,data)
-                if(error){
-                    return;
-                }
-                if(data){
-                    res.json({
-                        success:true,
-                        code:200,
-                        message:'登录成功',
-                        userInfo:data
-                    })
-                }else{
-                    res.json({
-                        success:false,
-                        code:404,
-                        message:'密码错误'
-                    })
-                }
-            })
-        }
-    })
-})
 
 //新建文件夹
 router.post('/createFile',function(req,res,next){
@@ -153,7 +61,7 @@ router.post('/createFile',function(req,res,next){
         }) 
     }
 
-})
+});
 
 //进入或者刷新大图标文件区的时候，请求文件数据
 router.post('/AllFilesInfo',function(req,res,next){
@@ -180,7 +88,7 @@ router.post('/AllFilesInfo',function(req,res,next){
         })
     }
     
-})
+});
 
 //修改大图标文件的信息 
 router.post('/ModifyFileInfo',function(req,res,next){
@@ -211,7 +119,7 @@ router.post('/ModifyFileInfo',function(req,res,next){
         })
 
     }
-})
+});
 
 //切换标星
 router.post('/ToggleFileStar',function(req,res,next){
@@ -240,7 +148,7 @@ router.post('/ToggleFileStar',function(req,res,next){
             }
         })
     }
-})
+});
 
 //移动文件到回收站
 router.post('/MoveFileToRecycleBin',function(req,res,next){
@@ -268,7 +176,7 @@ router.post('/MoveFileToRecycleBin',function(req,res,next){
             }
         })
     }
-})
+});
 
 //删除一个项目文件夹
 router.post('/DeleteAFlie',function(req,res,next){
@@ -294,64 +202,6 @@ router.post('/DeleteAFlie',function(req,res,next){
             }
         })
     }
-})
+});
 
-
-// 新建任务列表
-router.post('/CreateTaskItem',function(req,res,next){
-    let fileId = req.body.param.fileId;
-    let userLoginName = req.body.param.userLoginName;
-    let defaultTaskItem = req.body.arr;
-    console.log(defaultTaskItem[0])
-    if(fileId){
-        TaskItem.find({
-            userLoginName:userLoginName,
-            fileId:fileId
-        },function(err,adventure){
-            console.log(err,'adventure',adventure,adventure[0])
-            if(err){
-                console.log('err',err)
-                return;
-            }
-            if(!adventure[0]){
-                console.log('创建',adventure)
-                TaskItem.create(defaultTaskItem[0],defaultTaskItem[1],defaultTaskItem[2],function(error,d){
-                    console.log(error,d)
-                    if(error){
-                        console.log('error',error)
-                    }
-                    res.json({
-                        success:true,
-                        code:33,
-                        message:'创建默认的任务列表',
-                        CurrentTaskItemInfo:defaultTaskItem
-                    })
-                })
-            }
-        })
-    }
-})
-
-//查询一个项目文件下的任务列表 和任务列表下 子任务
-router.post('/GetTaskItemAndSubTask',function(req,res,next){
-    console.log('查询一个项目文件下的任务列表')
-    let fileId = req.body.fileId;
-    if(fileId){
-        TaskItem.find({
-            fileId:fileId
-        },function(err,data){
-            console.log(err,data)
-            if(err){
-                console.log('err',err)
-            }else if(data[0]){
-                res.json({
-                    success:true,
-                    code:33,
-                    message:`查询fileId--${fileId}对应的任务列表`,
-                    CurrentTaskItemInfo:data
-                })
-            }
-        })
-    }
-})
 module.exports = router;

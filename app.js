@@ -1,6 +1,5 @@
 //入口文件
 let express = require('express');
-let mongoose = require('mongoose');
 
 //连接数据库
 require('./connection/connect');
@@ -16,7 +15,9 @@ app.use(cors({
 }));
 
 //引入API （就像引入vue中间件一样）
-app.use('/',require('./routers/api.js'));
+app.use('/user',require('./routers/user.js'));
+app.use('/file',require('./routers/file.js'));
+app.use('/task',require('./routers/task.js'));
 
 
 app.listen(8080);
