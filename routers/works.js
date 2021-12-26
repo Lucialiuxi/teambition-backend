@@ -1,8 +1,9 @@
 //注册的用户信息
 let Works = require('../models/worksInfoModel');
+const { v4: uuidv4 } = require('uuid');
 
 let express = require('express');
-var router = express.Router();
+let router = express.Router();
 
 //解析post请求主体的键值对
 const bodyParser = require('body-parser');
@@ -48,5 +49,126 @@ router.post('/getWorkFileViewType',function(req,res){
         })
     }
 })
+
+/*
+ * 切换 缩略图模式ThumbnailView / 列表模式ListView
+ * @param { username:String , worksViewType:String } param
+ */
+router.post('/ChangeWorksViewType',async function(req,res){
+    let { username, worksViewType } = req.body;
+    if(username){
+        const result = await Works.findOneAndUpdate({ username },{ worksViewType });
+        res.json({
+            success: !result ? false : true,
+            code: !result ? 400 : 200,
+            message: !result || "切换文件显示模式成功",
+            data: result ? worksViewType : '',
+        });
+    }
+})
+
+/**修改work文件名
+ * @param {myId: String, workFileName: String} param
+ */
+router.post('/ModifyAWorkFileName',async function(req,res){
+    let { myId, workFileName } = req.body;
+    if(myId){
+        const result = await Works.findOneAndUpdate({ myId },{ workFileName });
+        const data = await Works.find({ myId });
+
+        res.json({
+            success: !result ? false : true,
+            code: !result ? 400 : 200,
+            message: !result || "文件名修改成功",
+            data,
+        });
+    }
+})
+
+
+
+/**查询当前所在层级的所有works文件
+ * @param {username: String , fileId: Number,parentId: String } param
+ */
+router.post('/GetAllWorksFileUnderParentWorksFile',function(req,res){
+    let { fileId, parentId } = req.body;
+    if(fileId){
+        const requestData = parentId ? req.body : { fileId, parentId: '0' };
+        Works.find(requestData,function(err,data){
+            console.log(err,data)
+            res.json({
+                success: err ? false : true,
+                code: err ? 400 : 200,
+                message: '成功查询works文件的显示模式',
+                data: data,
+            })
+        })
+    }
+})
+
+
+/**新建work文件
+ *
+ * @param { fileId: Number, parentId: String, myId: String, workFileName: String, lastestModifyTime: String} param
+ */
+router.post('/CreateAWorkFile',function(req,res,next){
+    const { workFileName, worksViewType, parentId } = req.body;
+    if(workFileName){
+        const newData = worksViewType ?
+            req.body :
+            Object.assign(req.body, {
+                worksViewType: 'ListView',
+                myId: uuidv4(),
+                check: false,
+                parentId: parentId || '0',
+            });
+        Works.create(newData,function(err,data){
+            res.json({
+                success: err ? false : true,
+                code: err ? 400 : 200,
+                message: err || '新建项目成功',
+                data,
+            });
+        });
+    }
+
+});
+
+
+/**删除文件夹一个项目文件夹
+ * @param {myId:String} param
+ */
+router.post('/DeleteAWorksFile',function(req,res,next){
+    let { myId } = req.body;
+    if(myId){
+        Works.findOneAndDelete({ myId },function(err,data){
+            res.json({
+                success: err ? false : true,
+                code: err ? 400 : 500,
+                message: err || '文件删除成功',
+                data,
+            });
+        });
+    }
+});
+
+/**
+ * 切换work文件选中状态  单选
+ * @param {myId:String,check:boolean} param
+ */
+router.post('/ToSwitchCheckAWorkFile',async function(req,res){
+    let { myId, check } = req.body;
+    if(myId){
+        const result = await Works.findOneAndUpdate({ myId },{ check });
+        const data = await Works.find({ myId });
+        res.json({
+            success: !result ? false : true,
+            code: !result ? 400 : 200,
+            message: !result || "切换文件显示模式成功",
+            data: data[0],
+        });
+    }
+})
+
 
 module.exports = router;

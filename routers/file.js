@@ -128,7 +128,6 @@ router.post('/ModifyFileInfo',function(req,res,next){
             FileName:req.body.FileName,
             FileAbstract:req.body.FileAbstract
         },function(err,data){
-            // console.log('findOneAndUpdate',err,data)
             if(err){
                // console.log('err',err) 
             }
@@ -158,7 +157,6 @@ router.post('/ToggleFileStar',function(req,res,next){
         },{
             star:req.body.star
         },function(err,data){
-            // console.log('findOneAndUpdate',err,data)
             if(err){
                // console.log('err',err) 
             }
@@ -186,7 +184,6 @@ router.post('/MoveFileToRecycleBin',function(req,res,next){
         },{
             inRecycleBin:req.body.inRecycleBin
         },function(err,data){
-            // console.log('findOneAndUpdate',err,data)
             if(err){
                // console.log('err',err) 
             }
