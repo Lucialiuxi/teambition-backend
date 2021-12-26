@@ -171,4 +171,74 @@ router.post('/ToSwitchCheckAWorkFile',async function(req,res){
 })
 
 
+
+/**
+ * 根据myId查询works文件的完整信息
+ * @param {myId: String} param
+ */
+router.post('/GetAWorksFileInformationById',function(req,res){
+    let { myId } = req.body;
+    if(myId){
+        Works.find({
+            myId,
+        },function(err,data){
+            res.json({
+                success: !err,
+                code: !err ? 200 : 400,
+                message: err || '文件信息查询成功',
+                data: data.length ? data[0] : data,
+            })
+        })
+    }
+})
+
+/**
+ * 移动OR复制一个workFile到其他文件夹下 keyWord:'复制'/'移动'
+ * @param { username: String , myId: String , keyWord:Sting , NewfileId: Number , NewParentId:String ,lastestModifyTime: Number} param
+ */
+router.post('/MoveOrCopyOneWorkFile',function(req,res,next){
+    let { username, myId, keyWord, NewfileId, NewParentId, lastestModifyTime } = req.body;
+    if(myId){
+        Works.find({
+            myId,
+            username,
+        }, function(err, data){
+            if(err){
+                return;
+            }
+            if (keyWord=== '移动') {
+                data.forEach(({ myId }) => {
+                    Works.findOneAndUpdate({
+                        myId
+                    },{
+                        fileId: NewfileId,
+                        parentId: NewParentId,
+                    },function(err, result) {
+                        console.log("移动:err", err);
+                        res.json({
+                            success: err ? false : true,
+                            message: err || '移动完成',
+                            data: result,
+                        });
+                    });
+                });
+            } else if (keyWord=== '复制') {
+                data.forEach(item => {
+                    let newItem = {
+                        fileId: NewfileId,
+                        parentId: NewParentId,
+                        myId: uuidv4(),
+                        username,
+                        workFileName:  item._doc.workFileName,
+                        lastestModifyTime,
+                        worksViewType: item._doc.worksViewType,
+                        check: false,
+                    };
+                    Works.create(newItem);
+                });
+            }
+        });
+    }
+})
+
 module.exports = router;

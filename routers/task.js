@@ -203,7 +203,6 @@ router.post('/MoveOrCopySubtaskToAnotherTaskItem',function(req,res,next){
     let { fileId, taskItemId, MoveOrCopy, currentTaskItemId } = req.body;
     if(currentTaskItemId){
         SubTask.find({
-            fileId,
             taskItemId: currentTaskItemId
         }, function(err, data){
             if(err){
@@ -214,6 +213,7 @@ router.post('/MoveOrCopySubtaskToAnotherTaskItem',function(req,res,next){
                     SubTask.findOneAndUpdate({
                         subTaskId 
                     },{
+                        fileId,
                         taskItemId
                     },function(err, result) {
                         console.log("移动:err", err);
@@ -227,7 +227,7 @@ router.post('/MoveOrCopySubtaskToAnotherTaskItem',function(req,res,next){
             } else if (MoveOrCopy=== 'copy') {
                 data.forEach(item => {
                     let newItem = {
-                        fileId: item._doc.fileId,
+                        fileId: fileId,
                         taskItemId,
                         subTaskId: uuidv4(),
                         index: item._doc.index,
